@@ -25,6 +25,32 @@ class Test(unittest.TestCase):
         self.assertEqual(get_coverage.get_vect_files_processed()[1], "/home/mmp/workspaceGit/getCoverage/test/files/files_test_1/test1.gz")
 
 
+    def testReference(self):
+        b_debug = False
+        reference_file = "files/files_2/reference_zeros.fasta"
+        get_coverage = GetCoverage(b_debug)
+        get_coverage.read_reference_fasta(reference_file)
+        
+        self.assertTrue(get_coverage.get_dict_reference().has_key("1"))
+        self.assertTrue(get_coverage.get_dict_reference().has_key("2"))
+        self.assertFalse(get_coverage.get_dict_reference().has_key("3"))
+        self.assertEquals(20, get_coverage.get_dict_reference()["1"])
+        self.assertEquals(20, get_coverage.get_dict_reference()["2"])
+        
+    def testReferenceGz(self):
+        b_debug = False
+        reference_file = "files/files_2/reference_zeros.fasta.gz"
+        get_coverage = GetCoverage(b_debug)
+        get_coverage.read_reference_fasta(reference_file)
+        
+        self.assertTrue(get_coverage.get_dict_reference().has_key("1"))
+        self.assertTrue(get_coverage.get_dict_reference().has_key("2"))
+        self.assertFalse(get_coverage.get_dict_reference().has_key("3"))
+        self.assertEquals(10, get_coverage.get_dict_reference()["1"])
+        self.assertEquals(10, get_coverage.get_dict_reference()["2"])
+        
+        
+        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

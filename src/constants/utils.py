@@ -5,14 +5,17 @@ Created on Oct 23, 2016
 '''
 
 import os, random, pickle, gzip
+from Bio import SeqIO
 
 class Util(object):
 	'''
 	classdocs
 	'''
+	FORMAT_FASTA = "fasta"
+	FORMAT_FASTQ = "fastq"
 	EXTENSION_ZIP = ".gz"
 	TEMP_DIRECTORY = "/tmp"
-	COUNT_DNA_TEMP_DIRECTORY = "countDNABox"
+	COVERAGE_TEMP_DIRECTORY = "getCoverage"
 	
 	def __init__(self):
 		'''
@@ -79,4 +82,32 @@ class Util(object):
 
 	def is_gzip(self, file_name): return True if (file_name.rfind(".gz") == len(file_name) - 3) else False
 	
+	def get_type_file(self, file_name):
+		"""
+		return 'fasta' or 'fastq' 
+		raise exception if can't detecte
+		"""
+		if (self.is_gzip(file_name)): handle = gzip.open(file_name)
+		else: handle = open(file_name)
+		for record in SeqIO.parse(handle, self.FORMAT_FASTQ):
+			handle.close() 
+			return self.FORMAT_FASTQ
+		handle.close()
+		
+		if (self.is_gzip(file_name)): handle = gzip.open(file_name)
+		else: handle = open(file_name)
+		for record in SeqIO.parse(handle, self.FORMAT_FASTA):
+			handle.close() 
+			return self.FORMAT_FASTA
+		handle.close()
+		
+		raise Exception("Can't detect file format for the file '" + file_name + "'")
 	
+	
+	def __get_temp_file__(self, file_name, index_file_to_process, sz_type):
+		main_path = os.path.join(self.TEMP_DIRECTORY, self.COVERAGE_TEMP_DIRECTORY)
+		if (not os.path.exists(main_path)): os.makedirs(main_path)
+		while 1:
+			return_file = os.path.join(main_path, "seq_dna_" + str(index_file_to_process) + "_" + str(random.randrange(10000, 99999, 10)) + "_file." + sz_type)
+			if (not os.path.exists(return_file)): return return_file
+
