@@ -101,6 +101,28 @@ class Test(unittest.TestCase):
         self.assertEqual("%.2f" % data_file.get_ratio_more_than("1", get_coverage.get_dict_reference()["1"], 1), "1.00")
         self.assertEqual("%.2f" % data_file.get_ratio_more_than("2", get_coverage.get_dict_reference()["2"], 1), "1.00")
 
+    def testFile_with_zeros(self):
+        b_debug = False
+        input_file = "files/files_2/EVA001_S67_zeros_2.depth"
+        reference_file = "files/files_2/reference_zeros.fasta"
+        
+        get_coverage = GetCoverage(b_debug)
+        parse_file = ParseFile()
+        data_file = parse_file.parse_file(os.path.join(os.getcwd(), input_file))
+        get_coverage.read_reference_fasta(reference_file)
+       
+        self.assertEqual(len(data_file.get_vect_chromosomes()), 2)
+        self.assertEqual(data_file.get_vect_chromosomes()[0], "1")
+        self.assertEqual(data_file.get_vect_chromosomes()[-1], "2")
+        self.assertEqual(get_coverage.get_dict_reference()["1"], 20)
+        self.assertEqual(get_coverage.get_dict_reference()["2"], 20)
+        self.assertEqual("%.2f" % data_file.get_coverage("1", get_coverage.get_dict_reference()["1"]), "4.50")
+        self.assertEqual("%.2f" % data_file.get_coverage("2", get_coverage.get_dict_reference()["2"]), "5.00")
+        self.assertEqual("%.2f" % data_file.get_ratio_more_than("1", get_coverage.get_dict_reference()["1"], 9), "0.00")
+        self.assertEqual("%.2f" % data_file.get_ratio_more_than("2", get_coverage.get_dict_reference()["2"], 9), "0.00")
+        self.assertEqual("%.2f" % data_file.get_ratio_more_than("1", get_coverage.get_dict_reference()["1"], 1), "0.90")
+        self.assertEqual("%.2f" % data_file.get_ratio_more_than("2", get_coverage.get_dict_reference()["2"], 1), "1.00")
+        
     def testFile_with_zeros_fault(self):
         b_debug = False
         input_file = "files/files_2/EVA001_S67_zeros.depth"
@@ -117,16 +139,17 @@ class Test(unittest.TestCase):
         self.assertEqual(get_coverage.get_dict_reference()["1"], 10)
         self.assertEqual(get_coverage.get_dict_reference()["2"], 10)
         try:
-            self.assertEqual("%.2f" % data_file.get_coverage("1", get_coverage.get_dict_reference()["1"]), "7.78")
+            self.assertEqual("%.2f" % data_file.get_coverage("1", get_coverage.get_dict_reference()["1"]), "10.00")
+            self.fail("Must raise exception")
+        except Exception as e:
+            self.assertEqual("Chromosome '1' has different sizes. Coverage: 20; Reference: 10", e.message)
+            
+        try:
+            self.assertEqual("%.2f" % data_file.get_ratio_more_than("1", get_coverage.get_dict_reference()["1"], 4), "2.00")
             self.fail("Must raise exception")
         except Exception as e:
             self.assertEqual("Chromosome '1' has different sizes. Coverage: 20; Reference: 10", e.message)
         
-        try:
-            self.assertEqual("%.2f" % data_file.get_ratio_more_than("1", get_coverage.get_dict_reference()["1"], 4), "7.78")
-            self.fail("Must raise exception")
-        except Exception as e:
-            self.assertEqual("Chromosome '1' has different sizes. Coverage: 20; Reference: 10", e.message)
             
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -37,15 +37,15 @@ class DataFile(object):
             self.dict_data[vect_data[0]] = [[vect_data[1], vect_data[2]]]
             self.previous_position = int(vect_data[1])
         else:
-            if (int(vect_data[1]) != (self.previous_position + 1)): raise Exception("File: " + self.file_name + "\nLine: '" + line + "'\nThe locus need to be sequential in the file")
+            if (int(vect_data[1]) <= (self.previous_position)): raise Exception("File: " + self.file_name + "\nLine: '" + line + "'\nThe locus need to be greater than the predecessor in the file")
             self.dict_data[vect_data[0]].append([vect_data[1], vect_data[2]])
             self.previous_position = int(vect_data[1])
         
     def get_coverage(self, sz_chromosome, length_chromosome):
         if (self.dict_data_coverage.has_key(sz_chromosome)): return self.dict_data_coverage[sz_chromosome]
-        if (len(self.dict_data[sz_chromosome]) <> length_chromosome): 
-            raise Exception("Chromosome '%s' has different sizes. Coverage: %d; Reference: %d" % (sz_chromosome, len(self.dict_data[sz_chromosome]), length_chromosome))
         if (length_chromosome == 0): return 0
+        if (len(self.dict_data[sz_chromosome]) > length_chromosome): 
+            raise Exception("Chromosome '%s' has different sizes. Coverage: %d; Reference: %d" % (sz_chromosome, len(self.dict_data[sz_chromosome]), length_chromosome))
         sum_total = 0
         for data_ in self.dict_data[sz_chromosome]: sum_total += int(data_[1])
         self.dict_data_coverage[sz_chromosome] = sum_total / float(length_chromosome)
@@ -53,7 +53,7 @@ class DataFile(object):
     
     def get_ratio_more_than(self, sz_chromosome, length_chromosome, value):
         if (length_chromosome == 0): return 0
-        if (len(self.dict_data[sz_chromosome]) <> length_chromosome): 
+        if (len(self.dict_data[sz_chromosome]) > length_chromosome): 
             raise Exception("Chromosome '%s' has different sizes. Coverage: %d; Reference: %d" % (sz_chromosome, len(self.dict_data[sz_chromosome]), length_chromosome))
         sum_total = 0
         for data_ in self.dict_data[sz_chromosome]: sum_total += (1 if (int(data_[1]) > value) else 0)
