@@ -125,6 +125,7 @@ if __name__ == '__main__':
 		Add - 	need the reference file
 				check if all chromosomes that are in the coverage are the ones that are in the reference.
 				get the size of the chromosomes from the reference 
+				add chromosome length to the report 
 	V0.1 release 12/09/2017
 		Add - coverage average base on the files <chromosome> <position> <deep coverage>:
 	"""
