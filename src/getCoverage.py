@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 
 
-import os, sys, glob, gzip
+import os, sys, glob
 from optparse import OptionParser
 from parse.parseFile import ParseFile
 from Bio import SeqIO
@@ -140,6 +140,9 @@ if __name__ == '__main__':
 		parser.add_option("-i", "--input", type="string", dest="input", help="Input file or path with coverage files. Can be zipped.", metavar="IN_FILE")
 		parser.add_option("-r", "--reference", type="string", dest="reference", help="Reference file to get the length of the chromosomes to check his name.", metavar="REF_FILE")
 		parser.add_option("-o", "--output", type="string", dest="output", help="Output file name", metavar="OUT_FILE")
+		parser.add_option("-c", "--cutoff", type="string", dest="cutoff", help="Cutoff of chromosomes with less than rate 10 <value %>. If all less than <value %> remove all genome.", metavar="CUT_RATIO")
+		parser.add_option("-p", "--path_out", type="string", dest="path_out", help="Output path for the fasta files with chromosomes cutted by ratio", metavar="OUT_PATH")
+		parser.add_option("-f", "--files", type="string", dest="files", help="Files in fasta with chromosomes to filter by ratio based on cutoff", metavar="FILES_TO_CUT")
 		parser.add_option('-h', '--help', dest='help', action='store_true', help='show this help message and exit')
 	
 		(options, args) = parser.parse_args()

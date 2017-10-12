@@ -42,6 +42,7 @@ class DataFile(object):
             self.previous_position = int(vect_data[1])
         
     def get_coverage(self, sz_chromosome, length_chromosome):
+        if (not self.dict_data.has_key(sz_chromosome)): return 0
         if (self.dict_data_coverage.has_key(sz_chromosome)): return self.dict_data_coverage[sz_chromosome]
         if (length_chromosome == 0): return 0
         if (len(self.dict_data[sz_chromosome]) > length_chromosome): 
@@ -52,6 +53,7 @@ class DataFile(object):
         return self.dict_data_coverage[sz_chromosome]
     
     def get_ratio_more_than(self, sz_chromosome, length_chromosome, value):
+        if (not self.dict_data.has_key(sz_chromosome)): return 0
         if (length_chromosome == 0): return 0
         if (len(self.dict_data[sz_chromosome]) > length_chromosome): 
             raise Exception("Chromosome '%s' has different sizes. Coverage: %d; Reference: %d" % (sz_chromosome, len(self.dict_data[sz_chromosome]), length_chromosome))
