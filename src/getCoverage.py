@@ -84,13 +84,13 @@ class GetCoverage(object):
 		if (len(vect_data) == 0): sys.exit("There's no data to process")
 
 		handle = open(output_file, "w")
-		handle.write("\nChromosome\n" + self.__get_chromosome__(vect_data) + "Length")
+		handle.write("\nChromosome\n" + self.__get_chromosome__() + "Length")
 		for chromosome in vect_data[0].get_vect_chromosomes():
 			if (not self.reference_dict.has_key(chromosome)): raise Exception("Can't locate the chromosome '" + chromosome + "' in reference file")
 			handle.write("\t%d" % (self.reference_dict[chromosome]))
 		handle.write("\n")
 			
-		handle.write("\nCoverage\n" + self.__get_chromosome__(vect_data))
+		handle.write("\nCoverage\n" + self.__get_chromosome__())
 		for data_from_file in vect_data:
 			handle.write(data_from_file.get_file_name())
 			for chromosome in self.vect_reference:
@@ -98,14 +98,14 @@ class GetCoverage(object):
 				handle.write("\t%.2f" % (data_from_file.get_coverage(chromosome, self.reference_dict[chromosome])))
 			handle.write("\n")
 		
-		handle.write("\nRatio >0\n" + self.__get_chromosome__(vect_data))
+		handle.write("\nRatio >0\n" + self.__get_chromosome__())
 		for data_from_file in vect_data:
 			handle.write(data_from_file.get_file_name())
 			for chromosome in self.vect_reference:
 				handle.write("\t%.1f" % (data_from_file.get_ratio_more_than(chromosome, self.reference_dict[chromosome], 0) * 100))
 			handle.write("\n")
 
-		handle.write("\nRatio >9\n" + self.__get_chromosome__(vect_data))
+		handle.write("\nRatio >9\n" + self.__get_chromosome__())
 		for data_from_file in vect_data:
 			handle.write(data_from_file.get_file_name())
 			for chromosome in self.vect_reference:
