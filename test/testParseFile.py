@@ -13,7 +13,7 @@ class Test(unittest.TestCase):
          
         b_debug = False
         input_file = "files/EVA001_S66.depth"
-        reference_file = "files/ref_H3.fasta"
+        reference_file = "files/ref/ref_H3.fasta"
         
         get_coverage = GetCoverage(b_debug)
         parse_file = ParseFile()
@@ -32,11 +32,26 @@ class Test(unittest.TestCase):
         self.assertEqual("%.2f" % data_file.get_ratio_more_than(data_file.get_vect_chromosomes()[0], get_coverage.get_dict_reference()["1"], 1), "0.98")
         self.assertEqual("%.2f" % data_file.get_ratio_more_than(data_file.get_vect_chromosomes()[-1], get_coverage.get_dict_reference()["8"], 1), "1.00")
         self.assertEqual(data_file.get_file_name(), "EVA001_S66")
-         
+
+    def testFileRef(self):
+        b_debug = False
+        reference_file = "files/ref/ompA_amplicon_14_sero.fasta"
+        
+        get_coverage = GetCoverage(b_debug)
+        get_coverage.read_reference_fasta(reference_file)
+        self.assertEqual(len(get_coverage.get_dict_reference()), 14)
+        self.assertEqual(len(get_coverage.get_vect_reference()), 14)
+        self.assertTrue(get_coverage.get_dict_reference().has_key('A_Har13_NC007429'))
+        self.assertTrue(get_coverage.get_dict_reference().has_key('F_IC_Cal3_X52080'))
+        self.assertTrue(get_coverage.get_dict_reference().has_key('L2b_UCH_1_NC_010280'))
+        self.assertTrue(get_coverage.get_dict_reference().has_key(get_coverage.get_vect_reference()[0]))
+        self.assertTrue(get_coverage.get_dict_reference().has_key(get_coverage.get_vect_reference()[-1]))
+        self.assertTrue(get_coverage.get_dict_reference().has_key(get_coverage.get_vect_reference()[3]))
+
     def testFile_1(self):
         b_debug = False
         input_file = "files/EVA003_S91.depth.gz"
-        reference_file = "files/ref_H3.fasta"
+        reference_file = "files/ref/ref_H3.fasta"
          
         get_coverage = GetCoverage(b_debug)
         parse_file = ParseFile()
@@ -59,7 +74,7 @@ class Test(unittest.TestCase):
     def testFile_2(self):
         b_debug = False
         input_file = "files/EVA003_S91.depth"
-        reference_file = "files/ref_H3.fasta"
+        reference_file = "files/ref/ref_H3.fasta"
 
         get_coverage = GetCoverage(b_debug)
         parse_file = ParseFile()

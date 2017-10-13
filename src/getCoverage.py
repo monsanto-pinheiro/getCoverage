@@ -16,8 +16,10 @@ class GetCoverage(object):
 		self.fasta_handle = None
 		self.b_degub = b_degub
 		self.reference_dict = {}
+		self.vect_reference = []
 	
 	def get_dict_reference(self): return self.reference_dict
+	def get_vect_reference(self): return self.vect_reference
 	
 	def test_input_files(self, input_path):
 		"""
@@ -50,6 +52,7 @@ class GetCoverage(object):
 			
 		for rec in SeqIO.parse(temp_file_name, 'fasta'):
 			self.reference_dict[rec.id] = len(str(rec.seq))
+			self.vect_reference.append(rec.id)
 		
 		###
 		if (b_temp_file): os.remove(temp_file_name)
@@ -90,7 +93,7 @@ class GetCoverage(object):
 		handle.write("\nCoverage\n" + self.__get_chromosome__(vect_data))
 		for data_from_file in vect_data:
 			handle.write(data_from_file.get_file_name())
-			for chromosome in vect_data[0].get_vect_chromosomes():
+			for chromosome in self.vect_reference:
 				if (not self.reference_dict.has_key(chromosome)): raise Exception("Can't locate the chromosome '" + chromosome + "' in reference file")
 				handle.write("\t%.2f" % (data_from_file.get_coverage(chromosome, self.reference_dict[chromosome])))
 			handle.write("\n")
@@ -98,30 +101,34 @@ class GetCoverage(object):
 		handle.write("\nRatio >0\n" + self.__get_chromosome__(vect_data))
 		for data_from_file in vect_data:
 			handle.write(data_from_file.get_file_name())
-			for chromosome in vect_data[0].get_vect_chromosomes():
+			for chromosome in self.vect_reference:
 				handle.write("\t%.1f" % (data_from_file.get_ratio_more_than(chromosome, self.reference_dict[chromosome], 0) * 100))
 			handle.write("\n")
 
 		handle.write("\nRatio >9\n" + self.__get_chromosome__(vect_data))
 		for data_from_file in vect_data:
 			handle.write(data_from_file.get_file_name())
-			for chromosome in vect_data[0].get_vect_chromosomes():
+			for chromosome in self.vect_reference:
 				handle.write("\t%.1f" % (data_from_file.get_ratio_more_than(chromosome, self.reference_dict[chromosome], 9) * 100))
 			handle.write("\n")
 		handle.close()
 		print "Output saved in: " + output_file
 		print "Finished..."
 
-	def __get_chromosome__(self, vect_data): 
+	def __get_chromosome__(self): 
 		sz_return = "Name"
-		for chromosome in vect_data[0].get_vect_chromosomes(): sz_return += "\t" + chromosome
+		for chromosome in self.vect_reference: sz_return += "\t" + chromosome
 		return sz_return + "\n"
 
 
 if __name__ == '__main__':
 
 	"""
-	V0.1 release 30/09/2017
+	V0.4 release 30/09/2017
+		Fix - 	when coverage doesn't have at all coverage doesn't appear in the results
+	V0.3 release 30/09/2017
+		Fix - 	get coverage 0 for chromosomes that are missing in coverage file
+	V0.2 release 30/09/2017
 		Add - 	need the reference file
 				check if all chromosomes that are in the coverage are the ones that are in the reference.
 				get the size of the chromosomes from the reference 
@@ -136,7 +143,7 @@ if __name__ == '__main__':
 		output_file = "/tmp/out_get_coverage.xls"
 		reference = "../test/files/refence.fasta"
 	else:
-		parser = OptionParser(usage="%prog [-h] [-i] [-r] [-o]", version="%prog 0.1", add_help_option=False)
+		parser = OptionParser(usage="%prog [-h] [-i] [-r] [-o]", version="%prog 0.4", add_help_option=False)
 		parser.add_option("-i", "--input", type="string", dest="input", help="Input file or path with coverage files. Can be zipped.", metavar="IN_FILE")
 		parser.add_option("-r", "--reference", type="string", dest="reference", help="Reference file to get the length of the chromosomes to check his name.", metavar="REF_FILE")
 		parser.add_option("-o", "--output", type="string", dest="output", help="Output file name", metavar="OUT_FILE")
