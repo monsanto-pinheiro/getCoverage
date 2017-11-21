@@ -1,6 +1,5 @@
 #!/usr/bin/env python2.7
 
-
 import os, sys, glob
 from optparse import OptionParser
 from parse.parseFile import ParseFile
@@ -63,7 +62,7 @@ class GetCoverage(object):
 	
 	
 	###
-	def process_files(self, input_file, reference, output_file):
+	def process_files(self, input_file, reference, output_file, ratio):
 		
 		## read config file
 		self.test_input_files(input_file)
@@ -82,35 +81,37 @@ class GetCoverage(object):
 
 		###
 		if (len(vect_data) == 0): sys.exit("There's no data to process")
+		if (ratio is None): ratio = '0,9'
+		vect_ratios = []
+		for i in ratio.split(','):
+			if (not self.utils.is_integer(i)): continue
+			vect_ratios.append(i)
 
 		handle = open(output_file, "w")
 		handle.write("\nChromosome\n" + self.__get_chromosome__() + "Length")
-		for chromosome in vect_data[0].get_vect_chromosomes():
+		for chromosome in self.vect_reference:
 			if (not self.reference_dict.has_key(chromosome)): raise Exception("Can't locate the chromosome '" + chromosome + "' in reference file")
 			handle.write("\t%d" % (self.reference_dict[chromosome]))
 		handle.write("\n")
 			
-		handle.write("\nCoverage\n" + self.__get_chromosome__())
+		handle.write("\nCoverage\t" + "\t" * len(self.vect_reference))
+		for ratio in vect_ratios:
+			handle.write("\tRatio>%s" % (ratio)	+ "\t" * len(self.vect_reference))
+		handle.write("\n")	
 		for data_from_file in vect_data:
 			handle.write(data_from_file.get_file_name())
+			sz_out = ""
 			for chromosome in self.vect_reference:
 				if (not self.reference_dict.has_key(chromosome)): raise Exception("Can't locate the chromosome '" + chromosome + "' in reference file")
-				handle.write("\t%.2f" % (data_from_file.get_coverage(chromosome, self.reference_dict[chromosome])))
-			handle.write("\n")
-		
-		handle.write("\nRatio >0\n" + self.__get_chromosome__())
-		for data_from_file in vect_data:
-			handle.write(data_from_file.get_file_name())
-			for chromosome in self.vect_reference:
-				handle.write("\t%.1f" % (data_from_file.get_ratio_more_than(chromosome, self.reference_dict[chromosome], 0) * 100))
-			handle.write("\n")
+				sz_out += "\t%.2f" % (data_from_file.get_coverage(chromosome, self.reference_dict[chromosome]))
+			sz_out += "\t"
+			
+			for i in vect_ratios:
+				for chromosome in self.vect_reference:
+					sz_out += "\t%.1f" % (data_from_file.get_ratio_more_than(chromosome, self.reference_dict[chromosome], int(i)) * 100)
+				if i != vect_ratios[-1]: sz_out += "\t"
+			handle.write(sz_out + "\n")
 
-		handle.write("\nRatio >9\n" + self.__get_chromosome__())
-		for data_from_file in vect_data:
-			handle.write(data_from_file.get_file_name())
-			for chromosome in self.vect_reference:
-				handle.write("\t%.1f" % (data_from_file.get_ratio_more_than(chromosome, self.reference_dict[chromosome], 9) * 100))
-			handle.write("\n")
 		handle.close()
 		print "Output saved in: " + output_file
 		print "Finished..."
@@ -124,6 +125,10 @@ class GetCoverage(object):
 if __name__ == '__main__':
 
 	"""
+	V0.6 release 21/11/2017
+		add - 	ratio as a parameter
+	V0.5 release 30/09/2017
+		Fix - 	length chromosome
 	V0.4 release 30/09/2017
 		Fix - 	when coverage doesn't have at all coverage doesn't appear in the results
 	V0.3 release 30/09/2017
@@ -139,27 +144,30 @@ if __name__ == '__main__':
 
 	b_debug = False
 	if (b_debug):
-		input_file = "../test/files/*.depth"
+		dir_path = os.path.dirname(os.path.realpath(__file__))
+		input_file = os.path.join(dir_path, "test/files/*.depth")
 		output_file = "/tmp/out_get_coverage.xls"
-		reference = "../test/files/refence.fasta"
+		reference = os.path.join(dir_path, "test/files/ref/ref_H3.fasta")
 	else:
-		parser = OptionParser(usage="%prog [-h] [-i] [-r] [-o]", version="%prog 0.4", add_help_option=False)
+		parser = OptionParser(usage="%prog [-h] [-i] [-r] [-o]", version="%prog 0.6", add_help_option=False)
 		parser.add_option("-i", "--input", type="string", dest="input", help="Input file or path with coverage files. Can be zipped.", metavar="IN_FILE")
 		parser.add_option("-r", "--reference", type="string", dest="reference", help="Reference file to get the length of the chromosomes to check his name.", metavar="REF_FILE")
 		parser.add_option("-o", "--output", type="string", dest="output", help="Output file name", metavar="OUT_FILE")
-		parser.add_option("-c", "--cutoff", type="string", dest="cutoff", help="Cutoff of chromosomes with less than rate 10 <value %>. If all less than <value %> remove all genome.", metavar="CUT_RATIO")
-		parser.add_option("-p", "--path_out", type="string", dest="path_out", help="Output path for the fasta files with chromosomes cutted by ratio", metavar="OUT_PATH")
-		parser.add_option("-f", "--files", type="string", dest="files", help="Files in fasta with chromosomes to filter by ratio based on cutoff", metavar="FILES_TO_CUT")
+		parser.add_option("-c", "--ratio", type="string", dest="ratio", help="Define the ratios to output, separated by comma. Ex: '0,4,9'. Default: '0,9'. The cutoff ratios is more than the values defined.", metavar="RATIO")
+#		parser.add_option("-p", "--path_out", type="string", dest="path_out", help="Output path for the fasta files with chromosomes cutted by ratio", metavar="OUT_PATH")
+		parser.add_option("-f", "--files", type="string", dest="files", help="Files in fasta with chromosomes to filter by ratio based on cutoff", metavar="FILES_TO_PROCESS")
 		parser.add_option('-h', '--help', dest='help', action='store_true', help='show this help message and exit')
 	
 		(options, args) = parser.parse_args()
 		
 		if (options.help):
 			parser.print_help()
-			print "Create an output file with several averages about the coverage."
-			print "example: getCoverage -i /usr/local/zpto/*.gz -r reference.fasta -o resultsOut.xls"
 			print 
-			print "\tThe input files must be in this format '<chromosome> <position> <deep coverage>'"
+			print "\tCreate an output file with several averages about the coverage."
+			print "\tOnly runs in linux or mac."
+			print "\texample: python getCoverage -i '/usr/local/zpto/*.gz' -r reference.fasta -o resultsOut.xls -r 0,9pytho"
+			print 
+			print "\tThe input coverage files must be in this format '<chromosome> <position> <deep coverage>'"
 			sys.exit(0)
 			
 		if (len(args) != 0):
@@ -175,8 +183,8 @@ if __name__ == '__main__':
 			parser.error('Output file is not specified')
 
 	get_coverage = GetCoverage(b_debug)
-	if (b_debug): get_coverage.process_files(input_file, output_file, output_file)
-	else: get_coverage.process_files(options.input, options.reference, options.output)
+	if (b_debug): get_coverage.process_files(input_file, reference, output_file, None)
+	else: get_coverage.process_files(options.input, options.reference, options.output, options.ratio)
 
 
 

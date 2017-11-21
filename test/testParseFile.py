@@ -4,6 +4,7 @@ Created on Sep 11, 2017
 @author: mmp
 '''
 import unittest, sys, os, gzip
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from parse.parseFile import ParseFile
 from getCoverage import GetCoverage
 

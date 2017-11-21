@@ -5,7 +5,7 @@ Created on Sep 11, 2017
 '''
 import unittest, sys, os
 
-sys.path.append('/home/mmp/workspaceGit/getCoverage')
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from getCoverage import GetCoverage
 
 class Test(unittest.TestCase):
@@ -21,8 +21,8 @@ class Test(unittest.TestCase):
         get_coverage.test_input_files(os.path.join(os.getcwd(), input_file))
         get_coverage.get_vect_files_processed()
         self.assertTrue(len(get_coverage.get_vect_files_processed()) == 2)
-        self.assertEqual(get_coverage.get_vect_files_processed()[0], "/home/mmp/workspaceGit/getCoverage/test/files/files_test_1/test2.gz")
-        self.assertEqual(get_coverage.get_vect_files_processed()[1], "/home/mmp/workspaceGit/getCoverage/test/files/files_test_1/test1.gz")
+        self.assertTrue(get_coverage.get_vect_files_processed()[0].index("files/files_test_1/test2.gz") != -1)
+        self.assertTrue(get_coverage.get_vect_files_processed()[1].index("files/files_test_1/test1.gz") != -1)
 
 
     def testReference(self):
