@@ -155,7 +155,7 @@ if __name__ == '__main__':
 		parser.add_option("-o", "--output", type="string", dest="output", help="Output file name", metavar="OUT_FILE")
 		parser.add_option("-c", "--ratio", type="string", dest="ratio", help="Define the ratios to output, separated by comma. Ex: '0,4,9'. Default: '0,9'. The cutoff ratios is more than the values defined.", metavar="RATIO")
 #		parser.add_option("-p", "--path_out", type="string", dest="path_out", help="Output path for the fasta files with chromosomes cutted by ratio", metavar="OUT_PATH")
-		parser.add_option("-f", "--files", type="string", dest="files", help="Files in fasta with chromosomes to filter by ratio based on cutoff", metavar="FILES_TO_PROCESS")
+#		parser.add_option("-f", "--files", type="string", dest="files", help="Files in fasta with chromosomes to filter by ratio based on cutoff", metavar="FILES_TO_PROCESS")
 		parser.add_option('-h', '--help', dest='help', action='store_true', help='show this help message and exit')
 	
 		(options, args) = parser.parse_args()
@@ -165,7 +165,9 @@ if __name__ == '__main__':
 			print 
 			print "\tCreate an output file with several averages about the coverage."
 			print "\tOnly runs in linux or mac."
-			print "\texample: python getCoverage -i '/usr/local/zpto/*.gz' -r reference.fasta -o resultsOut.xls -r 0,9pytho"
+			print "\texample: python getCoverage -i '/usr/local/zpto/*.gz' -r reference.fasta -o resultsOut.xls"
+			print "\texample: python getCoverage -i '/usr/local/zpto/*.gz' -r reference.fasta -o resultsOut.xls -c 0,9"
+			print "\texample: python getCoverage -i '/usr/local/zpto/*.gz' -r reference.fasta -o resultsOut.xls -c 0,9,14"
 			print 
 			print "\tThe input coverage files must be in this format '<chromosome> <position> <deep coverage>'"
 			sys.exit(0)
